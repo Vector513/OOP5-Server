@@ -1,9 +1,12 @@
 #include "Application.h"
 #include <QDebug>
-
+#include <QStringList>
+#include <sstream>
 // Конструктор
-Application::Application(int &argc, char **argv, TcpServer *server, Polynom& otherPolynom)
-    : QCoreApplication(argc, argv), server(server), polynom(otherPolynom)
+Application::Application(int &argc, char **argv, TcpServer *server, Polynom &otherPolynom)
+    : QCoreApplication(argc, argv)
+    , server(server)
+    , polynom(otherPolynom)
 {
     // Соединяем сигнал о получении сообщения с соответствующим слотом
     server->startServer(10001);
@@ -17,7 +20,7 @@ Application::~Application()
 }
 
 // Метод exec
-void Application::exec(TcpServer* otherServer)
+void Application::exec(TcpServer *otherServer)
 {
     // Логика, если необходимо использовать другой сервер
     if (otherServer) {
@@ -30,7 +33,7 @@ void Application::exec(TcpServer* otherServer)
 }
 
 // Слот обработки полученных сообщений
-void Application::onMessageReceived(QTcpSocket* clientSocket, const QString& message)
+void Application::onMessageReceived(QTcpSocket *clientSocket, const QString &message)
 {
     qDebug() << "Получено сообщение от сервера:" << message;
     // Здесь вы можете обрабатывать сообщение, например, выполнить какие-то действия
@@ -42,8 +45,34 @@ void Application::processMessage(QTcpSocket *clientSocket, const QString &messag
 {
     // Логика обработки сообщения
     // Например, добавляем префикс и отправляем обратно
-    QString response = "Обработанное сообщение: " + message;
+    QString response = "";
+    QStringList data = message.split(' ');
 
+    if (data.at(0) == "changeAn") {
+        polynom.setAn(number(data.at(1).toDouble(), data.at(2).toDouble()));
+    }
+    else if (data.at(0) == "addRoot") {
+        polynom.addRoot(number(data.at(1).toDouble(), data.at(2).toDouble()));
+    }
+    else if (data.at(0) == "changeRoot") {
+        polynom.setRoot(data.at(3).toInt(), number(data.at(1).toDouble(), data.at(2).toDouble()));
+    }
+    else if (data.at(0) == "rootsResize") {
+        polynom.resize(data.at(1).toInt());
+    }
+    else if (data.at(0) == "evaluate") {
+        polynom.evaluate(number(data.at(1).toDouble(), data.at(2).toDouble()));
+    }
+
+    std::stringstream ss;
+
+    polynom.show(ss);
+    response += ss.str();
+    ss.str("");
+    ss.clear();
+    response += " ";
+    polynom.show(ss, 0);
+    response += ss.str();
 
     // Отправляем обработанное сообщение обратно всем клиентам (или конкретному клиенту)
     server->sendMessage(clientSocket, response);

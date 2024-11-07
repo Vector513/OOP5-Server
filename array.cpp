@@ -1,28 +1,46 @@
 #include "array.h"
-#include <sstream>
 #include <algorithm>
+#include <sstream>
 
-Array::Array() : size(0), capacity(0), array(nullptr) {}
+Array::Array()
+    : size(0)
+    , capacity(0)
+    , array(nullptr)
+{}
 
-Array::Array(size_t initialSize) : size(0), capacity(0), array(nullptr) {
+Array::Array(size_t initialSize)
+    : size(0)
+    , capacity(0)
+    , array(nullptr)
+{
     resize(initialSize);
 }
 
-Array::Array(const std::initializer_list<number>& initList) : size(0), capacity(0), array(nullptr) {
+Array::Array(const std::initializer_list<number> &initList)
+    : size(0)
+    , capacity(0)
+    , array(nullptr)
+{
     resize(initList.size());
     std::copy(initList.begin(), initList.end(), array);
     size = initList.size();
 }
 
-Array::Array(const Array& other) : size(other.size), capacity(other.capacity), array(nullptr) {
+Array::Array(const Array &other)
+    : size(other.size)
+    , capacity(other.capacity)
+    , array(nullptr)
+{
     if (capacity > 0) {
         array = new number[capacity];
         std::copy(other.array, other.array + size, array);
     }
 }
 
-Array& Array::operator=(const Array& other) {
-    if (this == &other) return *this;
+Array &Array::operator=(const Array &other)
+{
+    if (this == &other)
+        return *this;
 
     delete[] array;
 
@@ -32,30 +50,33 @@ Array& Array::operator=(const Array& other) {
     if (capacity > 0) {
         array = new number[capacity];
         std::copy(other.array, other.array + size, array);
-    }
-    else {
+    } else {
         array = nullptr;
     }
 
     return *this;
 }
 
-Array::~Array() {
+Array::~Array()
+{
     delete[] array;
 }
 
-size_t Array::getSize() const {
+size_t Array::getSize() const
+{
     return size;
 }
 
-void Array::resize(size_t newSize) {
+void Array::resize(size_t newSize)
+{
     if (newSize > capacity) {
         reallocate(newSize);
     }
     size = newSize;
 }
 
-void Array::add(number value) {
+void Array::add(number value)
+{
     if (size >= capacity) {
         reallocate(capacity == 0 ? 1 : capacity * 2);
     }
@@ -95,7 +116,8 @@ number Array::MSD() const
     return res;
 }
 
-void Array::fill(const std::string& input) {
+void Array::fill(const std::string &input)
+{
     std::istringstream stream(input);
     number value;
 
@@ -113,26 +135,30 @@ void Array::fill(const std::string& input) {
     }
 }
 
-void Array::clear() {
+void Array::clear()
+{
     size = 0;
 }
 
-number& Array::operator[](size_t index) {
+number &Array::operator[](size_t index)
+{
     if (index >= size) {
         throw std::out_of_range("Index out of range");
     }
     return array[index];
 }
 
-const number& Array::operator[](size_t index) const {
+const number &Array::operator[](size_t index) const
+{
     if (index >= size) {
         throw std::out_of_range("Index out of range");
     }
     return array[index];
 }
 
-void Array::reallocate(size_t newCapacity) {
-    number* newArray = new number[newCapacity];
+void Array::reallocate(size_t newCapacity)
+{
+    number *newArray = new number[newCapacity];
     std::copy(array, array + size, newArray);
     delete[] array;
     array = newArray;

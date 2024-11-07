@@ -1,8 +1,8 @@
 #ifndef COMPLEX_H
 #define COMPLEX_H
 
-#include <iostream>
 #include <QString>
+#include <iostream>
 
 class Complex
 {
@@ -24,39 +24,39 @@ public:
     double arg() const;
     Complex pow(double exponent) const;
 
-    friend Complex pow(const Complex& base, double exponent);
-    friend Complex sqrt(const Complex& base);
+    friend Complex pow(const Complex &base, double exponent);
+    friend Complex sqrt(const Complex &base);
 
-    friend std::ostream& operator<<(std::ostream& output, const Complex& complex);
-    friend std::istream& operator>>(std::istream& input, Complex& complex);
+    friend std::ostream &operator<<(std::ostream &output, const Complex &complex);
+    friend std::istream &operator>>(std::istream &input, Complex &complex);
 
-    friend QString& operator<<(QString& output, const Complex& complex);
+    friend QString &operator<<(QString &output, const Complex &complex);
 
-    Complex& operator=(const Complex& other);
+    Complex &operator=(const Complex &other);
 
-    Complex operator+(const Complex& other) const;
-    Complex operator-(const Complex& other) const;
+    Complex operator+(const Complex &other) const;
+    Complex operator-(const Complex &other) const;
     Complex operator*(const double coef) const;
-    friend Complex operator*(const double coef, const Complex& other);
-    Complex operator*(const Complex& other) const;
+    friend Complex operator*(const double coef, const Complex &other);
+    Complex operator*(const Complex &other) const;
     Complex operator/(const double coef) const;
-    Complex operator/(const Complex& other) const;
+    Complex operator/(const Complex &other) const;
     Complex operator-() const;
 
-    Complex& operator+=(const Complex& other);
-    Complex& operator-=(const Complex& other);
-    Complex& operator*=(const double coef);
-    Complex& operator*=(const Complex& other);
-    Complex& operator/=(const double coef);
-    Complex& operator/=(const Complex& other);
+    Complex &operator+=(const Complex &other);
+    Complex &operator-=(const Complex &other);
+    Complex &operator*=(const double coef);
+    Complex &operator*=(const Complex &other);
+    Complex &operator/=(const double coef);
+    Complex &operator/=(const Complex &other);
 
-    bool operator==(const Complex& other) const;
-    bool operator!=(const Complex& other) const;
+    bool operator==(const Complex &other) const;
+    bool operator!=(const Complex &other) const;
 
-    bool operator>(const Complex& other) const;
-    bool operator>=(const Complex& other) const;
-    bool operator<(const Complex& other) const;
-    bool operator<=(const Complex& other) const;
+    bool operator>(const Complex &other) const;
+    bool operator>=(const Complex &other) const;
+    bool operator<(const Complex &other) const;
+    bool operator<=(const Complex &other) const;
 };
 
 #endif // COMPLEX_H

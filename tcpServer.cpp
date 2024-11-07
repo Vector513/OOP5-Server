@@ -1,7 +1,8 @@
 #include "tcpServer.h"
 
 TcpServer::TcpServer(QObject *parent)
-    : QObject(parent), server(new QTcpServer(this))
+    : QObject(parent)
+    , server(new QTcpServer(this))
 {
     // Подключаем сигнал для обработки новых соединений
     connect(server, &QTcpServer::newConnection, this, &TcpServer::onNewConnection);
@@ -12,13 +13,18 @@ void TcpServer::startServer(quint16 port)
     if (server->listen(QHostAddress::Any, port)) {
         qDebug() << "Сервер запущен на порту" << port;
         QHostAddress serverIp = server->serverAddress();
-        qDebug() << "Сервер слушает на IP-адресе:" << serverIp.toString();
+        //qDebug() << "Сервер слушает на IP-адресе:" << serverIp.toString();
+        const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
+        for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
+            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
+                qDebug() << "Сервер слушает на IP-адресе:" << address.toString();
+        }
     } else {
         qCritical() << "Ошибка запуска сервера!";
     }
 }
 
-void TcpServer::sendMessage(QTcpSocket* clientSocket, const QString &response)
+void TcpServer::sendMessage(QTcpSocket *clientSocket, const QString &response)
 {
     if (clientSocket->state() == QAbstractSocket::ConnectedState) {
         qDebug() << "Отправка данных:" << response;
@@ -54,8 +60,9 @@ void TcpServer::onNewConnection()
 
 void TcpServer::onDataReceived()
 {
-    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    if (!clientSocket) return;
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket *>(sender());
+    if (!clientSocket)
+        return;
 
     QByteArray data = clientSocket->readAll();
     qDebug() << "Получены данные от клиента" << clientSockets[clientSocket] << ":" << data;
@@ -74,18 +81,20 @@ void TcpServer::onDataReceived()
 
 void TcpServer::onClientDisconnected()
 {
-    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    if (!clientSocket) return;
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket *>(sender());
+    if (!clientSocket)
+        return;
 
     qDebug() << "Клиент отключился:" << clientSockets[clientSocket];
-    clientSockets.remove(clientSocket);  // Удаляем клиента из списка
+    clientSockets.remove(clientSocket); // Удаляем клиента из списка
     clientSocket->deleteLater();
 }
 
 void TcpServer::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
-    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    if (!clientSocket) return;
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket *>(sender());
+    if (!clientSocket)
+        return;
 
     switch (socketError) {
     case QAbstractSocket::RemoteHostClosedError:
@@ -98,17 +107,19 @@ void TcpServer::onErrorOccurred(QAbstractSocket::SocketError socketError)
         qWarning() << "Подключение отклонено:" << clientSockets[clientSocket];
         break;
     default:
-        qWarning() << "Ошибка сокета у клиента" << clientSockets[clientSocket] << ":" << clientSocket->errorString();
+        qWarning() << "Ошибка сокета у клиента" << clientSockets[clientSocket] << ":"
+                   << clientSocket->errorString();
         break;
     }
-    clientSockets.remove(clientSocket);  // Удаляем клиента из списка
+    clientSockets.remove(clientSocket); // Удаляем клиента из списка
     clientSocket->deleteLater();
 }
 
 void TcpServer::onBytesWritten(qint64 bytes)
 {
-    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    if (!clientSocket) return;
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket *>(sender());
+    if (!clientSocket)
+        return;
 
     qDebug() << bytes << "байт отправлено клиенту" << clientSockets[clientSocket];
 }
