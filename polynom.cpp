@@ -121,25 +121,29 @@ void Polynom::show(std::ostream &output, bool isFirstForm) const
         bool firstTerm = true;
         bool needMinus = false;
         for (size_t i = coefs.getSize(); i-- > 0;) {
-            if (coefs[i].getRe() != 0 || coefs[i].getIm() != 0) {
+            if (coefs[i].getRe() != 0.0 || coefs[i].getIm() != 0.0) {
                 double re = coefs[i].getRe();
                 double im = coefs[i].getIm();
 
                 if (!firstTerm) {
-                    needMinus = (re < 0 || (re == 0 && im < 0));
+                    needMinus = (re < 0.0 || (re == 0.0 && im < 0.0));
                     output << (needMinus ? " - " : " + ");
-                } else {
-                    firstTerm = false;
                 }
 
-                if (im == 0) {
-                    output << std::abs(re);
+                if (im == 0.0) {
+                    output << (!firstTerm ? std::abs(re) : re);
                 } else {
                     output << '(';
-                    if (re != 0) {
-                        output << std::abs(re);
+                    if (re != 0.0) {
+                        output << (!firstTerm ? std::abs(re) : re) << ((im > 0.0) ? " + " : " - ") << std::abs(im);
                     }
-                    output << ((im > 0) ^ (needMinus) ? " + " : " - ") << std::abs(im) << "i)";
+                    else if (!firstTerm) {
+                        output << ((im > 0.0) ^ (needMinus) ? " + " : " - ") << std::abs(im);
+                    }
+                    else {
+                        output << im;
+                    }
+                    output << "i)";
                 }
 
                 if (i > 0) {
@@ -148,6 +152,7 @@ void Polynom::show(std::ostream &output, bool isFirstForm) const
                         output << "^" << i;
                     }
                 }
+                firstTerm = false;
             }
         }
 
@@ -158,15 +163,18 @@ void Polynom::show(std::ostream &output, bool isFirstForm) const
     } else {
         output << "p(x) = ";
 
-        if (An.getRe() != 0 || An.getIm() != 0) {
-            if (An.getIm() == 0) {
-                output << std::abs(An.getRe());
+        if (An.getRe() != 0.0 || An.getIm() != 0.0) {
+            if (An.getIm() == 0.0) {
+                output << An.getRe();
             } else {
                 output << '(';
-                if (An.getRe() != 0) {
-                    output << std::abs(An.getRe());
+                if (An.getRe() != 0.0) {
+                    output << An.getRe() << (An.getIm() > 0.0 ? " + " : " - ") << std::abs(An.getIm());
                 }
-                output << (An.getIm() > 0 ? " + " : " - ") << std::abs(An.getIm()) << "i)";
+                else {
+                    output << An.getIm();
+                }
+                output << "i)";
             }
 
             if (roots.getSize() != 0) {
@@ -175,12 +183,12 @@ void Polynom::show(std::ostream &output, bool isFirstForm) const
                     double re = roots[i].getRe();
                     double im = roots[i].getIm();
 
-                    if (re != 0) {
-                        output << (re > 0 ? " - " : " + ") << std::abs(re);
+                    if (re != 0.0) {
+                        output << (re > 0.0 ? " - " : " + ") << std::abs(re);
                     }
 
-                    if (im != 0) {
-                        output << (im > 0 ? " - " : " + ") << std::abs(im) << "i";
+                    if (im != 0.0) {
+                        output << (im > 0.0 ? " - " : " + ") << std::abs(im) << "i";
                     }
 
                     output << ")";

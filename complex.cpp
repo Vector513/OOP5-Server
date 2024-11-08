@@ -57,11 +57,19 @@ std::ostream &operator<<(std::ostream &output, const Complex &complex)
 
 QString &operator<<(QString &output, const Complex &complex)
 {
-    //output << complex.re << " + " << complex.im << "i";
-    output += QString().setNum(complex.re);
-    output += "+";
-    output += QString().setNum(complex.im);
-    output += "i";
+    if (complex.re != 0 || complex.im != 0) {
+        if (complex.re != 0) {
+            output += QString::number(complex.re);
+        }
+        if (complex.im != 0) {
+            if (complex.im > 0) output += "+";
+            else output += "-";
+            output += QString::number(std::abs(complex.im)) + "i";
+        }
+    }
+    else {
+        output += "0";
+    }
 
     return output;
 }

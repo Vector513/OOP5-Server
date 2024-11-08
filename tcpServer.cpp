@@ -4,7 +4,6 @@ TcpServer::TcpServer(QObject *parent)
     : QObject(parent)
     , server(new QTcpServer(this))
 {
-    // Подключаем сигнал для обработки новых соединений
     connect(server, &QTcpServer::newConnection, this, &TcpServer::onNewConnection);
 }
 
@@ -12,7 +11,7 @@ void TcpServer::startServer(quint16 port)
 {
     if (server->listen(QHostAddress::Any, port)) {
         qDebug() << "Сервер запущен на порту" << port;
-        QHostAddress serverIp = server->serverAddress();
+        //QHostAddress serverIp = server->serverAddress();
         //qDebug() << "Сервер слушает на IP-адресе:" << serverIp.toString();
         const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
         for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
@@ -31,7 +30,6 @@ void TcpServer::sendMessage(QTcpSocket *clientSocket, const QString &response)
 
         clientSocket->write(response.toUtf8());
 
-        // Синхронная отправка: ждем, пока все данные будут записаны
         if (!clientSocket->waitForBytesWritten(5000)) {
             qWarning() << "Ошибка при отправке данных:" << clientSocket->errorString();
         } else {
@@ -70,7 +68,6 @@ void TcpServer::onDataReceived()
     if (data.isEmpty()) {
         qWarning() << "Нет данных от клиента, возможно, клиент отключился.";
     } else {
-        // Отправляем ответ клиенту
         //QString response = "Ответ от сервера: " + QString::fromUtf8(data);
         //clientSocket->write(response.toUtf8());
         emit messageReceived(clientSocket, data);
@@ -86,7 +83,7 @@ void TcpServer::onClientDisconnected()
         return;
 
     qDebug() << "Клиент отключился:" << clientSockets[clientSocket];
-    clientSockets.remove(clientSocket); // Удаляем клиента из списка
+    clientSockets.remove(clientSocket);
     clientSocket->deleteLater();
 }
 
@@ -111,7 +108,7 @@ void TcpServer::onErrorOccurred(QAbstractSocket::SocketError socketError)
                    << clientSocket->errorString();
         break;
     }
-    clientSockets.remove(clientSocket); // Удаляем клиента из списка
+    clientSockets.remove(clientSocket);
     clientSocket->deleteLater();
 }
 

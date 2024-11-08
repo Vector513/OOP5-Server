@@ -1,7 +1,7 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
-#include <QByteArray>
+//#include <QByteArray>
 #include <QDebug>
 #include <QHostAddress>
 #include <QMap>
@@ -17,7 +17,6 @@ public:
     explicit TcpServer(QObject *parent = nullptr);
     void startServer(quint16 port);
     void sendMessage(QTcpSocket *clientSocket, const QString &response);
-    //void onDataReceived();
 
 signals:
     void messageReceived(QTcpSocket *clientSocket, const QString &message);

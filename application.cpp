@@ -1,79 +1,94 @@
-#include "Application.h"
+#include "application.h"
 #include <QDebug>
-#include <QStringList>
 #include <sstream>
-// Конструктор
-Application::Application(int &argc, char **argv, TcpServer *server, Polynom &otherPolynom)
-    : QCoreApplication(argc, argv)
-    , server(server)
-    , polynom(otherPolynom)
+
+Application::Application(int &argc, char **argv, TcpServer *otherServer, Polynom& otherPolynom, quint16 port)
+    : QCoreApplication(argc, argv), server(otherServer), polynom(otherPolynom)
 {
-    // Соединяем сигнал о получении сообщения с соответствующим слотом
-    server->startServer(10001);
+    server->startServer(port);
     connect(server, &TcpServer::messageReceived, this, &Application::onMessageReceived);
 }
 
-// Деструктор
-Application::~Application()
-{
-    // Здесь можно очистить ресурсы, если это нужно
-}
+Application::~Application() = default;
 
-// Метод exec
-void Application::exec(TcpServer *otherServer)
-{
-    // Логика, если необходимо использовать другой сервер
-    if (otherServer) {
-        qDebug() << "Используем другой сервер.";
-        // Примените настройки для другого сервера, если нужно
-    }
-
-    // Запускаем основной цикл обработки событий
-    QCoreApplication::exec();
-}
-
-// Слот обработки полученных сообщений
 void Application::onMessageReceived(QTcpSocket *clientSocket, const QString &message)
 {
-    qDebug() << "Получено сообщение от сервера:" << message;
-    // Здесь вы можете обрабатывать сообщение, например, выполнить какие-то действия
-    // в зависимости от содержания сообщения.
+    qDebug() << "Получено сообщение от клиента:" << message;
     processMessage(clientSocket, message);
 }
-
 void Application::processMessage(QTcpSocket *clientSocket, const QString &message)
 {
-    // Логика обработки сообщения
-    // Например, добавляем префикс и отправляем обратно
     QString response = "";
-    QStringList data = message.split(' ');
-
-    if (data.at(0) == "changeAn") {
-        polynom.setAn(number(data.at(1).toDouble(), data.at(2).toDouble()));
-    }
-    else if (data.at(0) == "addRoot") {
-        polynom.addRoot(number(data.at(1).toDouble(), data.at(2).toDouble()));
-    }
-    else if (data.at(0) == "changeRoot") {
-        polynom.setRoot(data.at(3).toInt(), number(data.at(1).toDouble(), data.at(2).toDouble()));
-    }
-    else if (data.at(0) == "rootsResize") {
-        polynom.resize(data.at(1).toInt());
-    }
-    else if (data.at(0) == "evaluate") {
-        polynom.evaluate(number(data.at(1).toDouble(), data.at(2).toDouble()));
-    }
-
+    std::istringstream stream(message.toStdString());
     std::stringstream ss;
+    std::string command;
+    stream >> command;
 
-    polynom.show(ss);
-    response += ss.str();
-    ss.str("");
-    ss.clear();
-    response += " ";
-    polynom.show(ss, 0);
-    response += ss.str();
+    if (command == "changeAn") {
+        double realPart, imagPart;
+        stream >> realPart >> imagPart;
+        polynom.setAn(number(realPart, imagPart));
+        polynom.show(ss);
+        polynom.show(ss, 0);
+        response += QString::fromStdString(ss.str());
+    }
+    else if (command == "addRoot") {
+        double realPart, imagPart;
+        stream >> realPart >> imagPart;
+        polynom.addRoot(number(realPart, imagPart));
+        polynom.show(ss);
+        polynom.show(ss, 0);
+        response += QString::fromStdString(ss.str());
+    }
+    else if (command == "changeRoot") {
+        double realPart, imagPart;
+        int index;
+        stream >> realPart >> imagPart >> index;
+        polynom.setRoot(index, number(realPart, imagPart));
+        polynom.show(ss);
+        polynom.show(ss, 0);
+        response += QString::fromStdString(ss.str());
+    }
+    else if (command == "rootsResize") {
+        size_t newSize;
+        stream >> newSize;
+        polynom.resize(newSize);
+        polynom.show(ss);
+        polynom.show(ss, 0);
+        response += QString::fromStdString(ss.str());
+    }
+    else if (command == "evaluate") {
+        double realPart, imagPart;
+        stream >> realPart >> imagPart;
+        number res = polynom.evaluate(number(realPart, imagPart));
+        response += "p(";
+        if (realPart != 0.0 || imagPart != 0.0) {
+            if (realPart != 0.0) {
+                response += QString::number(realPart);
+            }
+            if (imagPart != 0.0) {
+                if (imagPart > 0.0 && realPart != 0.0 ) response += " + ";
+                response += QString::number(imagPart) + 'i';
+            }
+        }
+        else {
+            response += QString::number(realPart);
+        }
+        response += ") = ";
+        if (res.getRe() != 0 || res.getIm() != 0) {
+            if (res.getRe() != 0) {
+                response += QString::number(res.getRe());
+            }
+            if (res.getIm() != 0) {
+                if (res.getIm() > 0) response += " + ";
+                else response += " - ";
+                response += QString::number(std::abs(res.getIm())) + "i";
+            }
+        }
+        else {
+            response += "0";
+        }
+    }
 
-    // Отправляем обработанное сообщение обратно всем клиентам (или конкретному клиенту)
     server->sendMessage(clientSocket, response);
 }
