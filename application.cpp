@@ -11,11 +11,13 @@ Application::Application(int &argc, char **argv, TcpServer *otherServer, Polynom
 
 Application::~Application() = default;
 
-void Application::onMessageReceived(QTcpSocket *clientSocket, const QString &message)
+void Application::onMessageReceived(QTcpSocket *clientSocket, const QByteArray &message)
 {
     qDebug() << "Получено сообщение от клиента:" << message;
-    processMessage(clientSocket, message);
+    QString messageStr = QString::fromUtf8(message);
+    processMessage(clientSocket, messageStr);
 }
+
 void Application::processMessage(QTcpSocket *clientSocket, const QString &message)
 {
     QString response = "";

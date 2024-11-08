@@ -11,17 +11,17 @@ class Application : public QCoreApplication
     Q_OBJECT
 
 public:
-    Application(int &argc, char **argv, TcpServer *otherServer, Polynom &otherPolynom, quint16 port = 10001);
+    Application(int &argc, char **argv, TcpServer *otherServer, Polynom& otherPolynom, quint16 port);
     ~Application();
 
 private slots:
-    void onMessageReceived(QTcpSocket *clientSocket, const QString &message);
+    void onMessageReceived(QTcpSocket *clientSocket, const QByteArray &message);
 
 private:
-    TcpServer *server;
-    Polynom &polynom;
-
     void processMessage(QTcpSocket *clientSocket, const QString &message);
+
+    TcpServer* server;
+    Polynom& polynom;
 };
 
 #endif // APPLICATION_H

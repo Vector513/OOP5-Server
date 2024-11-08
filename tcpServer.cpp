@@ -1,4 +1,5 @@
 #include "tcpServer.h"
+#include <QDebug>
 
 TcpServer::TcpServer(QObject *parent)
     : QObject(parent)
@@ -11,8 +12,7 @@ void TcpServer::startServer(quint16 port)
 {
     if (server->listen(QHostAddress::Any, port)) {
         qDebug() << "Сервер запущен на порту" << port;
-        //QHostAddress serverIp = server->serverAddress();
-        //qDebug() << "Сервер слушает на IP-адресе:" << serverIp.toString();
+
         const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
         for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
@@ -27,7 +27,6 @@ void TcpServer::sendMessage(QTcpSocket *clientSocket, const QString &response)
 {
     if (clientSocket->state() == QAbstractSocket::ConnectedState) {
         qDebug() << "Отправка данных:" << response;
-
         clientSocket->write(response.toUtf8());
 
         if (!clientSocket->waitForBytesWritten(5000)) {
@@ -44,15 +43,12 @@ void TcpServer::onNewConnection()
 {
     QTcpSocket *clientSocket = server->nextPendingConnection();
 
-    // Подключаем сигналы для сокета
     connect(clientSocket, &QTcpSocket::readyRead, this, &TcpServer::onDataReceived);
     connect(clientSocket, &QTcpSocket::disconnected, this, &TcpServer::onClientDisconnected);
     connect(clientSocket, &QTcpSocket::errorOccurred, this, &TcpServer::onErrorOccurred);
     connect(clientSocket, &QTcpSocket::bytesWritten, this, &TcpServer::onBytesWritten);
 
-    // Сохраняем информацию о клиенте
     clientSockets[clientSocket] = clientSocket->peerAddress().toString();
-
     qDebug() << "Новый клиент подключился:" << clientSockets[clientSocket];
 }
 
@@ -68,8 +64,6 @@ void TcpServer::onDataReceived()
     if (data.isEmpty()) {
         qWarning() << "Нет данных от клиента, возможно, клиент отключился.";
     } else {
-        //QString response = "Ответ от сервера: " + QString::fromUtf8(data);
-        //clientSocket->write(response.toUtf8());
         emit messageReceived(clientSocket, data);
         clientSocket->flush();
         qDebug() << "Ответ отправлен клиенту" << clientSockets[clientSocket];
@@ -108,6 +102,7 @@ void TcpServer::onErrorOccurred(QAbstractSocket::SocketError socketError)
                    << clientSocket->errorString();
         break;
     }
+
     clientSockets.remove(clientSocket);
     clientSocket->deleteLater();
 }

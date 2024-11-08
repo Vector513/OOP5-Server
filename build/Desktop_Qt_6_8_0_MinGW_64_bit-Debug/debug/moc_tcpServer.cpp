@@ -79,7 +79,7 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSTcpServerENDCLASS[] = {
       12,    1,   61,    2, 0x08,    9 /* Private */,
 
  // signals: parameters
-    QMetaType::Void, 0x80000000 | 3, QMetaType::QString,    4,    5,
+    QMetaType::Void, 0x80000000 | 3, QMetaType::QByteArray,    4,    5,
 
  // slots: parameters
     QMetaType::Void,
@@ -103,7 +103,7 @@ Q_CONSTINIT const QMetaObject TcpServer::staticMetaObject = { {
         // method 'messageReceived'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<QTcpSocket *, std::false_type>,
-        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
+        QtPrivate::TypeAndForceComplete<const QByteArray &, std::false_type>,
         // method 'onNewConnection'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'onDataReceived'
@@ -126,7 +126,7 @@ void TcpServer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         auto *_t = static_cast<TcpServer *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->messageReceived((*reinterpret_cast< std::add_pointer_t<QTcpSocket*>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 0: _t->messageReceived((*reinterpret_cast< std::add_pointer_t<QTcpSocket*>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QByteArray>>(_a[2]))); break;
         case 1: _t->onNewConnection(); break;
         case 2: _t->onDataReceived(); break;
         case 3: _t->onClientDisconnected(); break;
@@ -155,7 +155,7 @@ void TcpServer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (TcpServer::*)(QTcpSocket * , const QString & );
+            using _t = void (TcpServer::*)(QTcpSocket * , const QByteArray & );
             if (_t _q_method = &TcpServer::messageReceived; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
                 *result = 0;
                 return;
@@ -195,7 +195,7 @@ int TcpServer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void TcpServer::messageReceived(QTcpSocket * _t1, const QString & _t2)
+void TcpServer::messageReceived(QTcpSocket * _t1, const QByteArray & _t2)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

@@ -1,25 +1,25 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
-//#include <QByteArray>
-#include <QDebug>
-#include <QHostAddress>
-#include <QMap>
+#include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QHostAddress>
 #include <QNetworkInterface>
+#include <QByteArray>
+#include <QMap>
 
 class TcpServer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit TcpServer(QObject *parent = nullptr);
+    TcpServer(QObject *parent = nullptr);
     void startServer(quint16 port);
     void sendMessage(QTcpSocket *clientSocket, const QString &response);
 
 signals:
-    void messageReceived(QTcpSocket *clientSocket, const QString &message);
+    void messageReceived(QTcpSocket *clientSocket, const QByteArray &message);
 
 private slots:
     void onNewConnection();
@@ -30,7 +30,7 @@ private slots:
 
 private:
     QTcpServer *server;
-    QMap<QTcpSocket *, QString> clientSockets; // Храним сокеты и адреса клиентов
+    QMap<QTcpSocket*, QString> clientSockets;
 };
 
 #endif // TCPSERVER_H
